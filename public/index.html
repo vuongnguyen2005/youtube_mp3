@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube ➜ MP3 Downloader</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Bootstrap 5 CSS CDN -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    * {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .floating-blob {
+      background: radial-gradient(circle at 10% 20%, #f97316 0, transparent 55%),
+        radial-gradient(circle at 90% 60%, #ef4444 0, transparent 55%),
+        radial-gradient(circle at 30% 90%, #eab308 0, transparent 55%);
+      filter: blur(60px);
+      opacity: 0.7;
+      mix-blend-mode: screen;
+    }
+
+    .pulse-ring {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+      }
+      70% {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 18px rgba(239, 68, 68, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
+    }
+
+    .yt-glow {
+      box-shadow: 0 18px 45px rgba(248, 113, 113, 0.45);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-50 relative overflow-hidden">
+  <!-- Background decoration -->
+  <div class="floating-blob w-[520px] h-[520px] rounded-full absolute -top-40 -left-40 pointer-events-none"></div>
+  <div class="floating-blob w-[420px] h-[420px] rounded-full absolute -bottom-40 -right-10 opacity-80 pointer-events-none"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(248,250,252,0.06)_0,_transparent_55%)] pointer-events-none"></div>
+
+  <!-- Main container -->
+  <div class="relative z-10 flex items-center justify-center min-h-screen px-4 py-10">
+    <!-- LOGIN VIEW -->
+    <div
+      id="loginView"
+      class="w-full max-w-md glass-card rounded-3xl p-8 shadow-2xl shadow-slate-900/60 border border-slate-700/70 transition-all duration-500"
+    >
+      <div class="flex items-center gap-3 mb-6">
+        <div
+          class="w-11 h-11 rounded-2xl flex items-center justify-center bg-red-600/90 pulse-ring"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="w-6 h-6 text-white"
+          >
+            <path
+              d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.51 1.257 5.273c.271 1.136-.964 2.033-1.96 1.46L12 18.354 7.373 21.2c-.996.573-2.231-.324-1.96-1.46l1.257-5.273-4.117-3.51c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006Z"
+            />
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-[0.25em] text-slate-400">
+            Welcome back
+          </p>
+          <h1 class="text-2xl font-semibold mt-1">
+            YouTube <span class="text-red-400">MP3</span> Studio
+          </h1>
+        </div>
+      </div>
+
+      <p class="text-slate-300 text-sm mb-6 leading-relaxed">
+        Đăng nhập để sử dụng trình chuyển đổi
+        <span class="text-red-400 font-medium">YouTube ➜ MP3</span> cực nhanh,
+        giao diện giống YouTube, không cần tài khoản phức tạp.
+      </p>
+
+      <form
+        id="loginForm"
+        class="space-y-4"
+        onsubmit="event.preventDefault(); handleLogin();"
+      >
+        <div>
+          <label class="form-label text-slate-200 text-sm mb-1.5">
+            Email / Tên đăng nhập
+          </label>
+          <input
+            type="text"
+            class="form-control bg-slate-900/70 border-slate-700 text-slate-100 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500/50"
+            placeholder="nhapgi@cungduoc.com"
+          />
+        </div>
+
+        <div>
+          <label class="form-label text-slate-200 text-sm mb-1.5">
+            Mật khẩu
+          </label>
+          <input
+            type="password"
+            class="form-control bg-slate-900/70 border-slate-700 text-slate-100 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500/50"
+            placeholder="gõ gì cũng được"
+          />
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <div class="form-check">
+            <input
+              class="form-check-input bg-slate-900 border-slate-700"
+              type="checkbox"
+              id="rememberCheck"
+              checked
+            />
+            <label class="form-check-label text-slate-300" for="rememberCheck">
+              Ghi nhớ lần sau
+            </label>
+          </div>
+          <button
+            type="button"
+            class="text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            Quên mật khẩu?
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-red-500 via-rose-500 to-orange-400 text-sm font-medium shadow-lg shadow-red-500/40 hover:shadow-red-500/60 hover:brightness-110 border border-red-400/70 transition-all duration-200"
+        >
+          <span>Đăng nhập</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.8"
+            stroke="currentColor"
+            class="w-4 h-4"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4.5 12h15m0 0-6.75-6.75M19.5 12 12.75 18.75"
+            />
+          </svg>
+        </button>
+
+        <p class="text-[11px] text-slate-400 text-center mt-1.5">
+          * Demo giao diện: bạn có thể gõ bất kỳ thông tin nào, chỉ cần bấm
+          <span class="text-slate-200 font-medium">Đăng nhập</span> là vào.
+        </p>
+      </form>
+    </div>
+
+    <!-- APP VIEW -->
+    <div
+      id="appView"
+      class="hidden w-full max-w-5xl glass-card rounded-3xl p-6 md:p-8 shadow-2xl shadow-slate-900/60 border border-slate-700/70 transition-all duration-500"
+    >
+      <!-- Header giống YouTube -->
+      <div class="flex items-center justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-2xl flex items-center justify-center bg-red-600 yt-glow"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-6 h-6 text-white"
+            >
+              <path
+                d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.51 1.257 5.273c.271 1.136-.964 2.033-1.96 1.46L12 18.354 7.373 21.2c-.996.573-2.231-.324-1.96-1.46l1.257-5.273-4.117-3.51c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006Z"
+              />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] uppercase tracking-[0.3em] text-slate-400">
+              Converter studio
+            </p>
+            <h2 class="text-lg md:text-xl font-semibold">
+              YouTube <span class="text-red-400">MP3</span> Downloader
+            </h2>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            onclick="backToLogin()"
+            class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-600 text-[11px] text-slate-300 hover:bg-slate-800/80 transition-colors"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+            Đang đăng nhập (thoát)
+          </button>
+          <div
+            class="w-9 h-9 rounded-full bg-gradient-to-tr from-red-500 via-orange-400 to-amber-300 flex items-center justify-center text-xs font-semibold text-slate-900 shadow-lg shadow-red-500/40"
+          >
+            YT
+          </div>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="grid md:grid-cols-3 gap-6 items-start">
+        <!-- Left: Input -->
+        <div class="md:col-span-2 space-y-4">
+          <div
+            class="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 md:p-5"
+          >
+            <p class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">
+              Bước 1
+            </p>
+            <h3 class="text-lg font-semibold mb-2">
+              Dán link video <span class="text-red-400">YouTube</span>
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">
+              Hệ thống sẽ tự nhận diện ID video, hiển thị hình ảnh minh họa và
+              tạo link tải MP3 cho bạn.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-stretch gap-2">
+              <div class="relative flex-1">
+                <input
+                  id="youtubeUrl"
+                  type="text"
+                  class="w-full rounded-xl bg-slate-950/70 border border-slate-700 px-3.5 py-2.5 pr-10 text-sm text-slate-100 placeholder-slate-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/50 outline-none"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  oninput="handleUrlChange(this.value)"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] px-2 py-1 rounded-full bg-slate-800/90 text-slate-300 hover:bg-slate-700"
+                  onclick="pasteFromClipboard()"
+                >
+                  Dán
+                </button>
+              </div>
+              <button
+                type="button"
+                onclick="startDownload()"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-500 via-rose-500 to-orange-400 text-sm font-medium shadow-lg shadow-red-500/40 hover:shadow-red-500/60 hover:brightness-110 border border-red-400/70 transition-all duration-200"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  class="w-4 h-4"
+                >
+                  <path
+                    d="M12 3v13m0 0 4-4m-4 4-4-4M5 19h14"
+                    stroke="currentColor"
+                    stroke-width="1.9"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span>Tải MP3</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Status / Result -->
+          <div
+            class="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 md:p-5 space-y-3"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <p class="text-xs uppercase tracking-[0.25em] text-slate-400">
+                  Trạng thái
+                </p>
+                <p
+                  id="statusText"
+                  class="text-sm font-medium text-slate-100 mt-1"
+                >
+                  Chưa có yêu cầu. Dán link và bấm "Tải MP3".
+                </p>
+              </div>
+              <div
+                id="statusBadge"
+                class="px-2.5 py-1 rounded-full text-[11px] bg-slate-800 text-slate-300 border border-slate-600"
+              >
+                Idle
+              </div>
+            </div>
+
+            <div id="downloadArea" class="hidden">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-emerald-500/30 bg-emerald-900/20 rounded-xl px-3.5 py-3"
+              >
+                <div class="flex items-center gap-2">
+                  <div
+                    class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      class="w-4 h-4"
+                    >
+                      <path
+                        d="M12 3v13m0 0 4-4m-4 4-4-4M5 19h14"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <p
+                      id="downloadTitle"
+                      class="text-sm font-medium text-emerald-100 line-clamp-2"
+                    >
+                      File MP3 đã sẵn sàng!
+                    </p>
+                    <p
+                      id="downloadInfo"
+                      class="text-[11px] text-emerald-300/90 mt-0.5"
+                    >
+                      Bấm nút để tải về máy của bạn.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <a
+                    id="downloadButton"
+                    href="#"
+                    target="_blank"
+                    rel="noopener"
+                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition-colors"
+                  >
+                    <span>Tải xuống MP3</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      class="w-4 h-4"
+                    >
+                      <path
+                        d="M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5M12 3v13m0 0 4-4m-4 4-4-4"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: YouTube-style popup / preview -->
+        <div
+          class="space-y-3 rounded-2xl border border-slate-700/80 bg-slate-900/80 p-4 md:p-5"
+        >
+          <p class="text-xs uppercase tracking-[0.25em] text-slate-400">
+            Xem trước
+          </p>
+          <h3 class="text-sm font-semibold text-slate-100 mb-1">
+            
+          </h3>
+
+          <div
+            id="videoPreview"
+            class="rounded-xl overflow-hidden bg-slate-900/90 border border-slate-700/80 relative"
+          >
+            <div class="aspect-video relative">
+              <img
+                id="thumbnailImg"
+                src="https://i.ytimg.com/vi/ScMzIvxBSi4/hqdefault.jpg"
+                alt="YouTube thumbnail"
+                class="w-full h-full object-cover"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent"
+              ></div>
+              <button
+                type="button"
+                class="absolute inset-0 flex items-center justify-center"
+              >
+                <div
+                  class="rounded-full bg-black/70 px-4 py-2 flex items-center gap-2 text-sm text-slate-100 shadow-lg shadow-black/60"
+                >
+                  <div
+                    class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white shadow-lg shadow-red-500/60"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      class="w-4 h-4"
+                    >
+                      <path
+                        d="M4.5 5.653C4.5 4.232 5.91 3.269 7.152 3.882l11.54 5.513c1.37.654 1.37 2.518 0 3.172L7.152 18.08C5.91 18.693 4.5 17.73 4.5 16.309V5.653Z"
+                      />
+                    </svg>
+                  </div>
+                  <span class="font-medium">Xem / tải MP3</span>
+                </div>
+              </button>
+              <div
+                class="absolute bottom-2 left-2 rounded px-2 py-0.5 bg-black/80 text-[10px] text-slate-100"
+              >
+                <span id="videoDuration">3:45</span>
+              </div>
+            </div>
+            <div class="p-3.5 flex gap-2.5">
+              <div
+                class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-[11px] text-slate-100"
+              >
+                YT
+              </div>
+              <div class="flex-1">
+                <p
+                  id="videoTitle"
+                  class="text-sm font-medium text-slate-100 line-clamp-2"
+                >
+                 
+                </p>
+                <p
+                  id="videoChannel"
+                  class="text-[11px] text-slate-400 mt-0.5"
+                >
+                  YouTube • Demo Channel
+                </p>
+                <p class="text-[10px] text-slate-500 mt-0.5">
+                  <span id="videoViews">1.2M lượt xem</span> •
+                  <span id="videoPublished">2 tuần trước</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Giao diện popup mô phỏng phong cách YouTube, giúp người dùng dễ
+            nhận ra đúng video trước khi tải MP3. Chỉ cần dán link là thumbnail
+            sẽ cập nhật ngay.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS (for future use if needed) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"
+  ></script>
+
+  <!-- Main App Script -->
+  <script>
+    const loginView = document.getElementById("loginView");
+    const appView = document.getElementById("appView");
+    const youtubeUrlInput = document.getElementById("youtubeUrl");
+    const statusText = document.getElementById("statusText");
+    const statusBadge = document.getElementById("statusBadge");
+    const downloadArea = document.getElementById("downloadArea");
+    const downloadButton = document.getElementById("downloadButton");
+    const downloadTitle = document.getElementById("downloadTitle");
+    const downloadInfo = document.getElementById("downloadInfo");
+
+    const thumbnailImg = document.getElementById("thumbnailImg");
+    const videoTitle = document.getElementById("videoTitle");
+    const videoChannel = document.getElementById("videoChannel");
+    const videoViews = document.getElementById("videoViews");
+    const videoPublished = document.getElementById("videoPublished");
+
+    function handleLogin() {
+      // Không kiểm tra gì cả, chỉ cần bấm là vào
+      loginView.classList.add("hidden");
+      appView.classList.remove("hidden");
+    }
+
+    function backToLogin() {
+      appView.classList.add("hidden");
+      loginView.classList.remove("hidden");
+    }
+
+    function parseYouTubeId(url) {
+      if (!url) return "";
+      url = url.trim();
+      // Nếu chỉ là ID
+      if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+
+      try {
+        const u = new URL(url);
+        // Dạng chuẩn: https://www.youtube.com/watch?v=ID
+        if (u.searchParams.get("v")) return u.searchParams.get("v");
+        // youtu.be/ID
+        if (u.hostname.includes("youtu.be")) {
+          return u.pathname.replace("/", "").substring(0, 11);
+        }
+        // youtube.com/shorts/ID
+        if (u.pathname.startsWith("/shorts/")) {
+          return u.pathname.split("/")[2]?.substring(0, 11) || "";
+        }
+      } catch (e) {
+        return "";
+      }
+      return "";
+    }
+
+    function handleUrlChange(value) {
+      const id = parseYouTubeId(value);
+      if (!id) return;
+
+      // Cập nhật thumbnail
+      thumbnailImg.src = "https://img.youtube.com/vi/" + id + "/hqdefault.jpg";
+
+      // Cập nhật nội dung giống YouTube (giả lập)
+      videoTitle.textContent =
+        "Đang chuẩn bị tải MP3 từ video với ID: " + id;
+      videoChannel.textContent = "YouTube • Auto detected";
+      videoViews.textContent = "Đang phân tích lượt xem...";
+      videoPublished.textContent = "Vừa xong";
+    }
+
+    async function pasteFromClipboard() {
+      if (!navigator.clipboard) return;
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          youtubeUrlInput.value = text;
+          handleUrlChange(text);
+        }
+      } catch (err) {
+        console.error("Không thể dán từ clipboard:", err);
+      }
+    }
+
+    async function startDownload() {
+      const url = youtubeUrlInput.value.trim();
+      const id = parseYouTubeId(url);
+
+      if (!id) {
+        updateStatus(
+          "Vui lòng dán link hoặc ID video YouTube hợp lệ.",
+          "Lỗi",
+          "error"
+        );
+        downloadArea.classList.add("hidden");
+        return;
+      }
+
+      updateStatus(
+        "Đang xử lý yêu cầu, vui lòng chờ trong giây lát...",
+        "Đang tải",
+        "loading"
+      );
+      downloadArea.classList.add("hidden");
+
+      try {
+        const res = await fetch(`/api/youtube/download?id=${encodeURIComponent(
+          id
+        )}`);
+        const data = await res.json();
+
+        if (!res.ok || !data || data.status !== "ok" || !data.link) {
+          throw new Error(data?.msg || "Không thể tạo file MP3");
+        }
+
+        updateStatus(
+          "File MP3 đã sẵn sàng. Bạn có thể bấm để tải ngay!",
+          "Thành công",
+          "success"
+        );
+
+        downloadButton.href = data.link;
+        downloadTitle.textContent = data.title || "File MP3 đã sẵn sàng!";
+        downloadInfo.textContent =
+          (data.mp3Length && `Thời lượng: ${data.mp3Length} giây.`) ||
+          "Bấm nút để tải về máy của bạn.";
+
+        downloadArea.classList.remove("hidden");
+
+        // Đồng bộ preview
+        if (data.title) {
+          videoTitle.textContent = data.title;
+        }
+        if (data.channel) {
+          videoChannel.textContent = data.channel;
+        }
+        if (data.duration) {
+          document.getElementById("videoDuration").textContent = data.duration;
+        }
+      } catch (err) {
+        console.error(err);
+        updateStatus(
+          "Có lỗi xảy ra khi tải MP3. Vui lòng kiểm tra lại API hoặc thử video khác.",
+          "Lỗi",
+          "error"
+        );
+        downloadArea.classList.add("hidden");
+      }
+    }
+
+    function updateStatus(text, badgeText, type) {
+      statusText.textContent = text;
+      statusBadge.textContent = badgeText;
+
+      statusBadge.className =
+        "px-2.5 py-1 rounded-full text-[11px] border " +
+        (type === "loading"
+          ? "bg-amber-500/15 text-amber-300 border-amber-400/50"
+          : type === "success"
+          ? "bg-emerald-500/15 text-emerald-300 border-emerald-400/50"
+          : type === "error"
+          ? "bg-red-500/15 text-red-300 border-red-400/50"
+          : "bg-slate-800 text-slate-300 border-slate-600");
+    }
+  </script>
+</body>
+</html>
+
+
