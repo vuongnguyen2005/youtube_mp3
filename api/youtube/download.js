@@ -1,3 +1,4 @@
+require("dotenv").config();
 const axios = require("axios");
 
 // Serverless function cho Vercel: /api/youtube/download
