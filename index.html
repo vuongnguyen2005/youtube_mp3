@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube ➜ MP3 Downloader</title>
+    <!--
+      File này dùng cho deploy trên Vercel.
+      Nó chỉ redirect sang giao diện chính nằm trong thư mục /public
+      để vẫn tương thích với server Express khi chạy local.
+    -->
+    <meta http-equiv="refresh" content="0; url=/public/index.html" />
+    <script>
+      // Fallback cho các trình duyệt không hỗ trợ meta refresh
+      window.location.replace("/public/index.html");
+    </script>
+  </head>
+  <body style="background:#020617;color:#e5e7eb;font-family:system-ui,sans-serif">
+    <p>Đang chuyển đến giao diện YouTube MP3 Downloader…</p>
+  </body>
+</html>
+
+
